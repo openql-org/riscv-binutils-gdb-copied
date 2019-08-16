@@ -100,6 +100,9 @@ static const char * const riscv_pred_succ[16] =
 #define EXTRACT_RVC_J_IMM(x) \
   ((RV_X(x, 3, 3) << 1) | (RV_X(x, 11, 1) << 4) | (RV_X(x, 2, 1) << 5) | (RV_X(x, 7, 1) << 6) | (RV_X(x, 6, 1) << 7) | (RV_X(x, 9, 2) << 8) | (RV_X(x, 8, 1) << 10) | (-RV_X(x, 12, 1) << 11))
 
+#define EXTRACT_KTYPE_QIMM(x) \
+  (RV_X(x, 25, 6))
+
 #define ENCODE_ITYPE_IMM(x) \
   (RV_X(x, 0, 12) << 20)
 #define ENCODE_STYPE_IMM(x) \
@@ -139,6 +142,9 @@ static const char * const riscv_pred_succ[16] =
 #define ENCODE_RVC_J_IMM(x) \
   ((RV_X(x, 1, 3) << 3) | (RV_X(x, 4, 1) << 11) | (RV_X(x, 5, 1) << 2) | (RV_X(x, 6, 1) << 7) | (RV_X(x, 7, 1) << 6) | (RV_X(x, 8, 2) << 9) | (RV_X(x, 10, 1) << 8) | (RV_X(x, 11, 1) << 12))
 
+#define ENCODE_KTYPE_QIMM(x) \
+  (RV_X(x, 0, 6) << 25)
+
 #define VALID_ITYPE_IMM(x) (EXTRACT_ITYPE_IMM(ENCODE_ITYPE_IMM(x)) == (x))
 #define VALID_STYPE_IMM(x) (EXTRACT_STYPE_IMM(ENCODE_STYPE_IMM(x)) == (x))
 #define VALID_SBTYPE_IMM(x) (EXTRACT_SBTYPE_IMM(ENCODE_SBTYPE_IMM(x)) == (x))
@@ -159,6 +165,8 @@ static const char * const riscv_pred_succ[16] =
 #define VALID_RVC_B_IMM(x) (EXTRACT_RVC_B_IMM(ENCODE_RVC_B_IMM(x)) == (x))
 #define VALID_RVC_J_IMM(x) (EXTRACT_RVC_J_IMM(ENCODE_RVC_J_IMM(x)) == (x))
 
+#define VALID_KTYPE_QIMM(x) (EXTRACT_KTYPE_QIMM(ENCODE_KTYPE_QIMM(x)) == (x))
+
 #define RISCV_RTYPE(insn, rd, rs1, rs2) \
   ((MATCH_ ## insn) | ((rd) << OP_SH_RD) | ((rs1) << OP_SH_RS1) | ((rs2) << OP_SH_RS2))
 #define RISCV_ITYPE(insn, rd, rs1, imm) \
@@ -171,6 +179,9 @@ static const char * const riscv_pred_succ[16] =
   ((MATCH_ ## insn) | ((rd) << OP_SH_RD) | ENCODE_UTYPE_IMM(bigimm))
 #define RISCV_UJTYPE(insn, rd, target) \
   ((MATCH_ ## insn) | ((rd) << OP_SH_RD) | ENCODE_UJTYPE_IMM(target))
+
+#define RISCV_KTYPE(insn, rd, rs1, rs2, qimm) \
+  ((MATCH_ ## insn) | ((rd) << OP_SH_RD) | ((rs1) << OP_SH_RS1) | ((rs2) << OP_SH_RS2) | ENCODE_KTYPE_QIMM(qimm))
 
 #define RISCV_NOP RISCV_ITYPE(ADDI, 0, 0, 0)
 #define RVC_NOP MATCH_C_ADDI
@@ -390,8 +401,11 @@ extern const char * const riscv_gpr_names_numeric[NGPR];
 extern const char * const riscv_gpr_names_abi[NGPR];
 extern const char * const riscv_fpr_names_numeric[NFPR];
 extern const char * const riscv_fpr_names_abi[NFPR];
+extern const char * const riscv_qpr_names_numeric[NFPR];
+extern const char * const riscv_qpr_names_abi[NFPR];
 
 extern const struct riscv_opcode riscv_opcodes[];
 extern const struct riscv_opcode riscv_insn_types[];
+
 
 #endif /* _RISCV_H_ */

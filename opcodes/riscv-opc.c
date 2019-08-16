@@ -56,6 +56,21 @@ const char * const riscv_fpr_names_abi[NFPR] = {
   "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"
 };
 
+const char * const riscv_qpr_names_numeric[NFPR] =
+{
+  "q0",   "q1",   "q2",   "q3",   "q4",   "q5",   "q6",   "q7",
+  "q8",   "q9",   "q10",  "q11",  "q12",  "q13",  "q14",  "q15",
+  "q16",  "q17",  "q18",  "q19",  "q20",  "q21",  "q22",  "q23",
+  "q24",  "q25",  "q26",  "q27",  "q28",  "q29",  "q30",  "q31"
+};
+
+const char * const riscv_qpr_names_abi[NFPR] = {
+  "qzero", "qt1", "qt2",  "qt3",  "qt4", "qt5", "qt6",  "qt7",
+  "qs0", "qs1", "qa0",  "qa1",  "qa2", "qa3", "qa4",  "qa5",
+  "qa6", "qa7", "qs2",  "qs3",  "qs4", "qs5", "qs6",  "qs7",
+  "qs8", "qs9", "qs10", "qs11", "qt8", "qt9", "qt10", "qt11"
+};
+
 /* The order of overloaded instructions matters.  Label arguments and
    register arguments look the same. Instructions that can have either
    for arguments must apear in the correct order in this table for the
@@ -694,6 +709,18 @@ const struct riscv_opcode riscv_opcodes[] =
 {"fcvt.q.l",  64, {"Q", 0}, "D,s,m",  MATCH_FCVT_Q_L, MASK_FCVT_Q_L, match_opcode, 0 },
 {"fcvt.q.lu", 64, {"Q", 0}, "D,s",  MATCH_FCVT_Q_LU | MASK_RM, MASK_FCVT_Q_L | MASK_RM, match_opcode, 0 },
 {"fcvt.q.lu", 64, {"Q", 0}, "D,s,m",  MATCH_FCVT_Q_LU, MASK_FCVT_Q_LU, match_opcode, 0 },
+
+/* Quantum instruction subset */
+{"qmeas.k",    0, {"K", 0}, "kD,kS,kT,ku", MATCH_QMEAS_K, MASK_QMEAS_K, match_opcode, 0},
+{"qtelep.k",   0, {"K", 0}, "kD,kS,kT,ku", MATCH_QTELEP_K, MASK_QTELEP_K, match_opcode, 0},
+{"qtocx.k",    0, {"K", 0}, "kD,kS,kT,ku", MATCH_QTOCX_K, MASK_QTOCX_K, match_opcode, 0},
+{"qootdg.k",   0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOTDG_K, MASK_QOOTDG_K, match_opcode, 0},
+{"qoosdg.k",   0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOSDG_K, MASK_QOOSDG_K, match_opcode, 0},
+{"qooz.k",     0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOZ_K, MASK_QOOZ_K, match_opcode, 0},
+{"qoox.k",     0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOX_K, MASK_QOOX_K, match_opcode, 0},
+{"qoos.k",     0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOS_K, MASK_QOOS_K, match_opcode, 0},
+{"qoot.k",     0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOT_K, MASK_QOOT_K, match_opcode, 0},
+{"qooh.k",     0, {"K", 0}, "kD,kS,kT,ku", MATCH_QOOH_K, MASK_QOOH_K, match_opcode, 0},
 
 /* Compressed instructions.  */
 {"c.ebreak",   0, {"C", 0},   "",  MATCH_C_EBREAK, MASK_C_EBREAK, match_opcode, 0 },

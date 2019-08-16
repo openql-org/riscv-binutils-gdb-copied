@@ -40,6 +40,7 @@ struct riscv_private_data
 
 static const char * const *riscv_gpr_names;
 static const char * const *riscv_fpr_names;
+static const char * const *riscv_qpr_names;
 
 /* Other options.  */
 static int no_aliases;	/* If set disassemble as most general inst.  */
@@ -49,6 +50,7 @@ set_default_riscv_dis_options (void)
 {
   riscv_gpr_names = riscv_gpr_names_abi;
   riscv_fpr_names = riscv_fpr_names_abi;
+  riscv_qpr_names = riscv_qpr_names_abi;
   no_aliases = 0;
 }
 
@@ -61,6 +63,7 @@ parse_riscv_dis_option (const char *option)
     {
       riscv_gpr_names = riscv_gpr_names_numeric;
       riscv_fpr_names = riscv_fpr_names_numeric;
+      riscv_qpr_names = riscv_qpr_names_numeric;
     }
   else
     {
@@ -340,6 +343,26 @@ print_insn_args (const char *d, insn_t l, bfd_vma pc, disassemble_info *info)
 	case 'Z':
 	  print (info->stream, "%d", rs1);
 	  break;
+
+	case 'k': /* Quantum K extension */
+	  switch (*++d)
+	    {
+      case 'D':
+        print (info->stream, "%s", riscv_qpr_names[rd]);
+        break;
+      case 'S':
+        print (info->stream, "%s", riscv_qpr_names[rs1]);
+        break;
+      case 'T':
+        print (info->stream, "%s",
+         riscv_qpr_names[EXTRACT_OPERAND (RS2, l)]);
+        break;
+      case 'u':
+        print (info->stream, "0x%x",
+         (unsigned)EXTRACT_KTYPE_QIMM (l) >> OP_SH_CUSTOM_IMM);
+        break;
+      }
+    break;
 
 	default:
 	  /* xgettext:c-format */
