@@ -778,6 +778,20 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 		      c, opc->name, opc->args);
 	     return FALSE;
 	  }
+  break;
+      case 'k': /* Quantum k-extension */
+	switch (c = *p++)
+    {
+      case 'D':	USE_BITS (OP_MASK_RD, OP_SH_RD);	break;
+      case 'S':	USE_BITS (OP_MASK_RS1, OP_SH_RS1);	break;
+      case 'T':	USE_BITS (OP_MASK_RS2, OP_SH_RS2);	break;
+      case 'u':	used_bits |= ENCODE_KTYPE_QIMM (-1U); break;
+      default:
+	      as_bad (_("internal: bad RISC-V opcode"
+			" (unknown operand type `K%c'): %s %s"),
+		      c, opc->name, opc->args);
+	     return FALSE;
+    }
 	break;
       default:
 	as_bad (_("internal: bad RISC-V opcode "
