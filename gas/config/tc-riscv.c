@@ -166,7 +166,7 @@ riscv_add_subset (const char *subset)
 static void
 riscv_set_arch (const char *s)
 {
-  const char *all_subsets = "imafdqc";
+  const char *all_subsets = "imafkdqc";     // k is Quantum subset.
   char *extension = NULL;
   const char *p = s;
 
@@ -778,20 +778,20 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 		      c, opc->name, opc->args);
 	     return FALSE;
 	  }
-  break;
+        break;
       case 'k': /* Quantum k-extension */
 	switch (c = *p++)
-    {
-      case 'D':	USE_BITS (OP_MASK_RD, OP_SH_RD);	break;
-      case 'S':	USE_BITS (OP_MASK_RS1, OP_SH_RS1);	break;
-      case 'T':	USE_BITS (OP_MASK_RS2, OP_SH_RS2);	break;
-      case 'u':	used_bits |= ENCODE_KTYPE_QIMM (-1U); break;
-      default:
+          {
+            case 'D':	USE_BITS (OP_MASK_RD, OP_SH_RD);	break;
+            case 'S':	USE_BITS (OP_MASK_RS1, OP_SH_RS1);	break;
+            case 'T':	USE_BITS (OP_MASK_RS2, OP_SH_RS2);	break;
+            case 'u':	used_bits |= ENCODE_KTYPE_QIMM (-1U);   break;
+            default:
 	      as_bad (_("internal: bad RISC-V opcode"
 			" (unknown operand type `K%c'): %s %s"),
 		      c, opc->name, opc->args);
 	     return FALSE;
-    }
+          }
 	break;
       default:
 	as_bad (_("internal: bad RISC-V opcode "
@@ -825,6 +825,7 @@ init_opcode_hash (const struct riscv_opcode *opcodes,
   int i = 0;
   int length;
   struct hash_control *hash = hash_new ();
+
   while (opcodes[i].name)
     {
       const char *name = opcodes[i].name;
@@ -879,6 +880,8 @@ md_begin (void)
   hash_reg_names (RCLASS_GPR, riscv_gpr_names_abi, NGPR);
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_numeric, NFPR);
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_abi, NFPR);
+  hash_reg_names (RCLASS_FPR, riscv_qpr_names_numeric, NFPR);
+  hash_reg_names (RCLASS_FPR, riscv_qpr_names_abi, NFPR);
 
   opcode_names_hash = hash_new ();
   init_opcode_names_hash ();
@@ -1529,11 +1532,38 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 		      && !riscv_opts.rvc)
 		    break;
 		}
+
 	      if (*s != '\0')
 		break;
 	      /* Successful assembly.  */
 	      error = NULL;
 	      goto out;
+
+	    
+	    case 'k': /* Quantum */
+	      switch (*++args) {
+		case 'S': /* Floating-point RS1 x8-x15.  */
+		  if (!reg_lookup (&s, RCLASS_FPR, &regno)
+		      || !(regno >= 0 && regno <= 31))
+		    break;
+	          INSERT_OPERAND (RD, *ip, regno);
+		  continue;
+		case 'D': /* Floating-point RS2 x8-x15.  */
+		  if (!reg_lookup (&s, RCLASS_FPR, &regno)
+		      || !(regno >= 0 && regno <= 31))
+		    break;
+		  INSERT_OPERAND (RS1, *ip, regno);
+		  continue;
+		case 'T': /* Floating-point RS2.  */
+		  if (!reg_lookup (&s, RCLASS_FPR, &regno))
+		    break;
+		  INSERT_OPERAND (RS2, *ip, regno);
+		  continue;
+		case 'u': /* TODO: Just a test code. need INSERT_OPERAND  */
+	          s += strlen (s);
+		  continue;
+              }
+	      break;
 
 	    case 'C': /* RVC */
 	      switch (*++args)
