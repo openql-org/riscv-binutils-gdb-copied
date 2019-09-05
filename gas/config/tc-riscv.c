@@ -1559,8 +1559,9 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 		    break;
 		  INSERT_OPERAND (RS2, *ip, regno);
 		  continue;
-		case 'u': /* TODO: Just a test code. need INSERT_OPERAND  */
-	          s += strlen (s);
+		case 'u': /* CUSTOM_IMM  */
+		  INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
+                  s += strlen (s);
 		  continue;
               }
 	      break;

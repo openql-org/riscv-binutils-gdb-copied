@@ -358,8 +358,7 @@ print_insn_args (const char *d, insn_t l, bfd_vma pc, disassemble_info *info)
          riscv_qpr_names[EXTRACT_OPERAND (RS2, l)]);
         break;
       case 'u':
-        print (info->stream, "0x%x",
-         (unsigned)EXTRACT_KTYPE_QIMM (l) >> OP_SH_CUSTOM_IMM);
+        print (info->stream, "%d", (unsigned)EXTRACT_KTYPE_QIMM (l));
         break;
       }
     break;
