@@ -1504,6 +1504,10 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
   argsStart = s;
   for ( ; insn && insn->name && strcmp (insn->name, str) == 0; insn++)
     {
+
+// Debug
+//fprintf (stderr, _("name : `%s'\n"), insn->name);
+
       if (!riscv_multi_subset_supports (insn->xlen_requirement, insn->subset))
 	continue;
 
@@ -1517,22 +1521,34 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
       for (args = insn->args;; ++args)
 	{
 	  s += strspn (s, " \t");
+// Debug
+//fprintf (stderr, _("     : %s\n"), s);
+
 	  switch (*args)
 	    {
 	    case '\0': 	/* End of args.  */
+//fprintf (stderr, _("     : end start\n"));
 	      if (insn->pinfo != INSN_MACRO)
 		{
-		  if (!insn->match_func (insn, ip->insn_opcode))
+//fprintf (stderr, _("     : %lx\n"), ip->insn_opcode);
+//fprintf (stderr, _("     : %lx\n"), insn->match);
+//fprintf (stderr, _("     : %lx\n"), insn->mask);
+		  if (!insn->match_func (insn, ip->insn_opcode)) {
+//fprintf (stderr, _("     : match_func error\n"));
 		    break;
+		  }
 
 		  /* For .insn, insn->match and insn->mask are 0.  */
 		  if (riscv_insn_length ((insn->match == 0 && insn->mask == 0)
 					 ? ip->insn_opcode
 					 : insn->match) == 2
-		      && !riscv_opts.rvc)
+		      && !riscv_opts.rvc) {
+//fprintf (stderr, _("     : riscv_insn_length\n"));
 		    break;
+		  }
 		}
 
+//fprintf (stderr, _("     : end\n"));
 	      if (*s != '\0')
 		break;
 	      /* Successful assembly.  */
@@ -1546,21 +1562,28 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 		  if (!reg_lookup (&s, RCLASS_FPR, &regno)
 		      || !(regno >= 0 && regno <= 31))
 		    break;
+//fprintf (stderr, _("     : INSERT_OPERAND OK\n"));
 	          INSERT_OPERAND (RD, *ip, regno);
 		  continue;
 		case 'D': /* Floating-point RS2 x8-x15.  */
 		  if (!reg_lookup (&s, RCLASS_FPR, &regno)
 		      || !(regno >= 0 && regno <= 31))
 		    break;
+//fprintf (stderr, _("     : INSERT_OPERAND OK\n"));
 		  INSERT_OPERAND (RS1, *ip, regno);
 		  continue;
 		case 'T': /* Floating-point RS2.  */
 		  if (!reg_lookup (&s, RCLASS_FPR, &regno))
 		    break;
+//fprintf (stderr, _("     : INSERT_OPERAND OK\n"));
 		  INSERT_OPERAND (RS2, *ip, regno);
 		  continue;
 		case 'u': /* CUSTOM_IMM  */
-		  INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
+                  /* for qmeas.k high bits */
+                  if (!((ip->insn_opcode ^ MATCH_QMEAS_K) & MASK_QMEAS_K)) {
+                      INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
+                      ip->insn_opcode |= MATCH_QMEAS_K;
+                  }
                   s += strlen (s);
 		  continue;
               }
