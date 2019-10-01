@@ -166,7 +166,7 @@ riscv_add_subset (const char *subset)
 static void
 riscv_set_arch (const char *s)
 {
-  const char *all_subsets = "imafkdqc";     // k is Quantum subset.
+  const char *all_subsets = "imafdqkc";     // k is Quantum subset.
   char *extension = NULL;
   const char *p = s;
 
