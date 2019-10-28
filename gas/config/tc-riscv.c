@@ -1506,7 +1506,6 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
   argsStart = s;
   for ( ; insn && insn->name && strcmp (insn->name, str) == 0; insn++)
     {
-
       if (!riscv_multi_subset_supports (insn->xlen_requirement, insn->subset))
 	continue;
 
@@ -1575,6 +1574,10 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
                   if (!((ip->insn_opcode ^ MATCH_QMEAS_K) & MASK_QMEAS_K)) {
                       INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
                       ip->insn_opcode |= MATCH_QMEAS_K;
+                  /* for qtocx.k high bits */
+		  } else if (!((ip->insn_opcode ^ MATCH_QTOCX_K) & MASK_QTOCX_K)) {
+                      INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
+                      ip->insn_opcode |= MATCH_QTOCX_K;
                   } else
                       INSERT_OPERAND (CUSTOM_IMM, *ip, atoi(s));
                   s += strlen (s);
